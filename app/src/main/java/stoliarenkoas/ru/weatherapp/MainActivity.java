@@ -1,6 +1,5 @@
 package stoliarenkoas.ru.weatherapp;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -42,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getWeather() {
-        if (cityName == "Manhattan") return;
         StringBuffer sb = new StringBuffer("Storming clouds");
         if (showTemperature) sb.append(", 276K");
         if (showPressure) sb.append(", 749mm");

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="action_settings">Настройки</string>
+    <string name="title">Погода</string>
+    <string name="settings">Настройки</string>
+    <string name="city">Город</string>
+    <string name="selection_city">Введите город</string>
+    <string name="button_confirmSelection">Подтвердить выбор</string>
+    <string name="switch_showTemperature">Показать температуру</string>
+    <string name="switch_showPressure">Показать давление</string>
+    <string name="switch_showHumidity">Показать влажность</string>
+</resources>
