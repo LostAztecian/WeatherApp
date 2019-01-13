@@ -17,7 +17,8 @@ public class CitySelectionActivity extends AppCompatActivity {
     }
 
     public void confirmSelection(View view) {
-        switch (view.getId()) {
+        final int viewId = view.getId();
+        switch (viewId) {
             case R.id.button_confirmSelection: {
                 final String cityName = ((EditText)findViewById(R.id.editText_selectCity)).getText().toString();
                 final boolean showTemperature = ((Switch)findViewById(R.id.switch_showTemperature)).isChecked();
