@@ -2,4 +2,14 @@
     <string name="app_name">WeatherApp</string>
     <string name="action_settings">Settings</string>
     <string name="title">Weather</string>
+
+    <string name="settings">Settings</string>
+    <string name="city">City</string>
+    <string name="selection_city">Input city name</string>
+
+    <string name="button_confirmSelection">Confirm Selection</string>
+    <string name="switch_showTemperature">Show temperature</string>
+    <string name="switch_showPressure">Show pressure</string>
+    <string name="switch_showHumidity">Show humidity</string>
+
 </resources>
