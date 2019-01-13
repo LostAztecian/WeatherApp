@@ -9,7 +9,7 @@ import android.widget.EditText;
 import android.widget.Switch;
 
 public class CitySelectionActivity extends AppCompatActivity {
-
+    private static final int ID_BUTTON_CONFIRM = R.id.button_confirmSelection;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -19,7 +19,7 @@ public class CitySelectionActivity extends AppCompatActivity {
     public void confirmSelection(View view) {
         final int viewId = view.getId();
         switch (viewId) {
-            case R.id.button_confirmSelection: {
+            case ID_BUTTON_CONFIRM: {
                 final String cityName = ((EditText)findViewById(R.id.editText_selectCity)).getText().toString();
                 final boolean showTemperature = ((Switch)findViewById(R.id.switch_showTemperature)).isChecked();
                 final boolean showPressure = ((Switch)findViewById(R.id.switch_showPressure)).isChecked();
