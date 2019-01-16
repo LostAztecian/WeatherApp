@@ -1,4 +1,4 @@
-package stoliarenkoas.ru.weatherapp;
+package ru.stoliarenkoas.weatherapp;
 
 import org.junit.Test;
 
