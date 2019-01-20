@@ -7,17 +7,15 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/textView_settings"
-        style="@style/settings_element_style"
-        android:layout_width="wrap_content"
+        android:id="@+id/settings_title"
+        style="@style/StyleTitleElement"
         android:text="@string/settings"
-        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView_city"
+        android:id="@+id/settings_text_city"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -26,50 +24,50 @@
         android:text="@string/city"
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_settings" />
+        app:layout_constraintTop_toBottomOf="@+id/settings_title" />
 
     <EditText
-        android:id="@+id/editText_selectCity"
-        style="@style/settings_element_style"
+        android:id="@+id/settings_input_city"
+        style="@style/StyleSettingsElement"
         android:ems="10"
         android:hint="@string/selection_city"
         android:inputType="textPersonName"
-        app:layout_constraintBottom_toBottomOf="@+id/textView_city"
+        app:layout_constraintBottom_toBottomOf="@+id/settings_text_city"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView_city"
-        app:layout_constraintTop_toBottomOf="@+id/textView_settings" />
+        app:layout_constraintStart_toEndOf="@+id/settings_text_city"
+        app:layout_constraintTop_toBottomOf="@+id/settings_title" />
 
     <Button
-        android:id="@+id/button_confirmSelection"
-        style="@style/settings_element_style"
-        android:text="@string/button_confirmSelection"
+        android:id="@+id/button_confirm_selection"
+        style="@style/StyleSettingsElement"
+        android:text="@string/button_confirm_selection"
         android:onClick="confirmSelection"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Switch
-        android:id="@+id/switch_showTemperature"
-        style="@style/settings_element_style"
+        android:id="@+id/switch_show_temperature"
+        style="@style/StyleSettingsElement"
         android:layout_marginTop="@dimen/fab_margin"
-        android:text="@string/switch_showTemperature"
+        android:text="@string/switch_show_temperature"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_city" />
+        app:layout_constraintTop_toBottomOf="@+id/settings_text_city" />
 
     <Switch
-        android:id="@+id/switch_showPressure"
-        style="@style/settings_element_style"
-        android:text="@string/switch_showPressure"
+        android:id="@+id/switch_show_pressure"
+        style="@style/StyleSettingsElement"
+        android:text="@string/switch_show_pressure"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switch_showTemperature" />
+        app:layout_constraintTop_toBottomOf="@+id/switch_show_temperature" />
 
     <Switch
-        android:id="@+id/switch_showHumidity"
-        style="@style/settings_element_style"
-        android:text="@string/switch_showHumidity"
+        android:id="@+id/switch_show_humidity"
+        style="@style/StyleSettingsElement"
+        android:text="@string/switch_show_humidity"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switch_showPressure" />
+        app:layout_constraintTop_toBottomOf="@+id/switch_show_pressure" />
 </android.support.constraint.ConstraintLayout>

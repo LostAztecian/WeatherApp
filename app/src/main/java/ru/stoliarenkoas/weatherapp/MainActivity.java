@@ -9,12 +9,11 @@ import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
-import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
-
 public class MainActivity extends AppCompatActivity {
-    private String cityName = "Manhattan";
-    private String currentWeather = "raining 17C";
+    private String cityName;
+    private String currentWeather;
+
+    private boolean weatherVisible;
 
     private boolean showHumidity;
     private boolean showPressure;
@@ -24,7 +23,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) showWeather();
+
+        weatherVisible = getWeatherFragmentVisibility();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getParameters();
+        updateWeather();
+        if (weatherVisible) showWeather();
     }
 
     @Override
@@ -53,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         getParameters();
         updateWeather();
 
-        if (getResources().getConfiguration().orientation == ORIENTATION_PORTRAIT) {
+        if (!weatherVisible) {
             Intent intent = new Intent(this, CityWeatherActivity.class);
             intent.putExtra("cityName", cityName);
             intent.putExtra("currentWeather", currentWeather);
@@ -63,8 +71,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showWeather() {
-        ((TextView)findViewById(R.id.textView_cityName)).setText(cityName);
-        ((TextView)findViewById(R.id.textView_cityWeather)).setText(currentWeather);
+        ((TextView)findViewById(R.id.main_text_city_name)).setText(cityName);
+        ((TextView)findViewById(R.id.main_text_city_weather)).setText(currentWeather);
     }
 
     private void updateWeather() {
@@ -77,10 +85,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getParameters() {
-        cityName = ((TextView)findViewById(R.id.editText_selectCity)).getText().toString();
+        cityName = ((TextView)findViewById(R.id.settings_input_city)).getText().toString();
+        if (cityName.isEmpty()) cityName = "Manhattan";
 
-        showHumidity = ((Switch)findViewById(R.id.switch_showHumidity)).isChecked();
-        showPressure = ((Switch)findViewById(R.id.switch_showPressure)).isChecked();
-        showTemperature = ((Switch)findViewById(R.id.switch_showTemperature)).isChecked();
+        showHumidity = ((Switch)findViewById(R.id.switch_show_humidity)).isChecked();
+        showPressure = ((Switch)findViewById(R.id.switch_show_pressure)).isChecked();
+        showTemperature = ((Switch)findViewById(R.id.switch_show_temperature)).isChecked();
+    }
+
+    private boolean getWeatherFragmentVisibility() {
+        final View currentWeatherFragment = findViewById(R.id.fragment_city_weather);
+        return !(currentWeatherFragment == null || currentWeatherFragment.getVisibility() != View.VISIBLE);
     }
 }

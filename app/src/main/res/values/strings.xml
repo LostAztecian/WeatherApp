@@ -7,9 +7,9 @@
     <string name="city">City</string>
     <string name="selection_city">Input city name</string>
 
-    <string name="button_confirmSelection">Confirm Selection</string>
-    <string name="switch_showTemperature">Show temperature</string>
-    <string name="switch_showPressure">Show pressure</string>
-    <string name="switch_showHumidity">Show humidity</string>
+    <string name="button_confirm_selection">Confirm Selection</string>
+    <string name="switch_show_temperature">Show temperature</string>
+    <string name="switch_show_pressure">Show pressure</string>
+    <string name="switch_show_humidity">Show humidity</string>
 
 </resources>
