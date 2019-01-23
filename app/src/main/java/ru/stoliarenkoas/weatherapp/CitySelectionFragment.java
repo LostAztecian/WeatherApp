@@ -17,7 +17,9 @@ public class CitySelectionFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_city_selection, container, false);
+        View view = inflater.inflate(R.layout.fragment_city_selection, container, false);
+        setRetainInstance(true);
+        return view;
     }
 
     @Override

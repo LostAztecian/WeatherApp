@@ -6,8 +6,8 @@
     <string name="settings">Настройки</string>
     <string name="city">Город</string>
     <string name="selection_city">Введите город</string>
-    <string name="button_confirmSelection">Подтвердить выбор</string>
-    <string name="switch_showTemperature">Показать температуру</string>
-    <string name="switch_showPressure">Показать давление</string>
-    <string name="switch_showHumidity">Показать влажность</string>
+    <string name="button_confirm_selection">Подтвердить выбор</string>
+    <string name="switch_show_temperature">Показать температуру</string>
+    <string name="switch_show_pressure">Показать давление</string>
+    <string name="switch_show_humidity">Показать влажность</string>
 </resources>
