@@ -3,13 +3,21 @@ package ru.stoliarenkoas.weatherapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
+    private ArrayList<WeatherCard> cards;
+    WeatherCardAdapter adapter;
+
     private String cityName;
     private String currentWeather;
 
@@ -25,6 +33,25 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         weatherVisible = getWeatherFragmentVisibility();
+        if (!weatherVisible) return;
+
+        cards = new ArrayList<>();
+        cards.add(new WeatherCard("Manhattan", "Cloudy, 17C.", R.drawable.cloudy));
+        cards.add(new WeatherCard("Mordor", "Storming clouds, 271K.", R.drawable.cloudy));
+
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(manager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        adapter = new WeatherCardAdapter(cards);
+        adapter.setOnItemClickListener(new WeatherCardAdapter.OnItemClickListener() {
+            @Override
+            public void onLongClick(View view, int position) {
+                cards.remove(position);
+                adapter.notifyItemRemoved(position);
+            }
+        });
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -32,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         getParameters();
         updateWeather();
-        if (weatherVisible) showWeather();
     }
 
     @Override
@@ -63,16 +89,13 @@ public class MainActivity extends AppCompatActivity {
 
         if (!weatherVisible) {
             Intent intent = new Intent(this, CityWeatherActivity.class);
-            intent.putExtra("cityName", cityName);
-            intent.putExtra("currentWeather", currentWeather);
+            intent.putExtra("cards", cards); //TODO export data
             startActivity(intent);
-        } else showWeather();
+        } else {
+            cards.add(0, new WeatherCard(cityName, currentWeather, R.drawable.cloudy));
+            adapter.notifyItemInserted(0);
+        };
 
-    }
-
-    private void showWeather() {
-        ((TextView)findViewById(R.id.main_text_city_name)).setText(cityName);
-        ((TextView)findViewById(R.id.main_text_city_weather)).setText(currentWeather);
     }
 
     private void updateWeather() {
