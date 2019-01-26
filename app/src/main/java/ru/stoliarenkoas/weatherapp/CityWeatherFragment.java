@@ -8,7 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+
+import lombok.Getter;
+
 public class CityWeatherFragment extends Fragment {
+    @Getter private ArrayList<WeatherCard> cards = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,6 +33,5 @@ public class CityWeatherFragment extends Fragment {
     public void onPause() {
         super.onPause();
     }
-
 
 }
