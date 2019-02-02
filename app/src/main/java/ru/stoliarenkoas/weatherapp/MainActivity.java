@@ -1,6 +1,5 @@
 package ru.stoliarenkoas.weatherapp;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -18,10 +17,12 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<WeatherCard> cards;
     WeatherCardAdapter adapter;
 
+    private boolean weatherVisible;
+    private View weatherFragmentView;
+    private View selectionFragmentView;
+
     private String cityName;
     private String currentWeather;
-
-    private boolean weatherVisible;
 
     private boolean showHumidity;
     private boolean showPressure;
@@ -33,11 +34,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         weatherVisible = getWeatherFragmentVisibility();
-        if (!weatherVisible) return;
-
-        cards = new ArrayList<>();
-        cards.add(new WeatherCard("Manhattan", "Cloudy, 17C.", R.drawable.cloudy));
-        cards.add(new WeatherCard("Mordor", "Storming clouds, 271K.", R.drawable.cloudy));
+        CityWeatherFragment weatherFragment = (CityWeatherFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_city_weather);
+        cards = weatherFragment.getCards();
 
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         LinearLayoutManager manager = new LinearLayoutManager(this);
@@ -88,14 +86,20 @@ public class MainActivity extends AppCompatActivity {
         updateWeather();
 
         if (!weatherVisible) {
-            Intent intent = new Intent(this, CityWeatherActivity.class);
-            intent.putExtra("cards", cards); //TODO export data
-            startActivity(intent);
-        } else {
-            cards.add(0, new WeatherCard(cityName, currentWeather, R.drawable.cloudy));
-            adapter.notifyItemInserted(0);
-        };
+            selectionFragmentView.setVisibility(View.INVISIBLE);
+            weatherFragmentView.setVisibility(View.VISIBLE);
+        }
 
+        cards.add(0, new WeatherCard(cityName, currentWeather, R.drawable.cloudy));
+        adapter.notifyItemInserted(0);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (weatherFragmentView.getVisibility() == View.VISIBLE) {
+            selectionFragmentView.setVisibility(View.VISIBLE);
+            weatherFragmentView.setVisibility(View.INVISIBLE);
+        } else super.onBackPressed();
     }
 
     private void updateWeather() {
@@ -117,7 +121,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean getWeatherFragmentVisibility() {
-        final View currentWeatherFragment = findViewById(R.id.fragment_city_weather);
-        return !(currentWeatherFragment == null || currentWeatherFragment.getVisibility() != View.VISIBLE);
+        selectionFragmentView = findViewById(R.id.fragment_city_selection);
+        if ("ghosty".equals(((View)selectionFragmentView.getParent()).getTag())) {
+            weatherFragmentView = findViewById(R.id.fragment_city_weather);
+            weatherFragmentView.setVisibility(View.INVISIBLE);
+            return false;
+        }
+        return true;
     }
 }
