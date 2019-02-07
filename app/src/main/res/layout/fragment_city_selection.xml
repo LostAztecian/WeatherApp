@@ -46,6 +46,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <ru.stoliarenkoas.weatherapp.WeatherIconView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/button_confirm_selection"/>
+
     <Switch
         android:id="@+id/switch_show_temperature"
         style="@style/StyleSettingsElement"
