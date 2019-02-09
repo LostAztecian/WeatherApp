@@ -18,7 +18,7 @@ public class WeatherCardAdapter extends RecyclerView.Adapter<WeatherCardAdapter.
     @Setter private OnItemClickListener onItemClickListener;
 
     public class ViewHolder extends RecyclerView.ViewHolder{
-        private ImageView imageView;
+        private WeatherIconView imageView;
         private TextView cityNameView;
         private TextView currentWeatherView;
 
@@ -59,7 +59,7 @@ public class WeatherCardAdapter extends RecyclerView.Adapter<WeatherCardAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         try {
-            holder.imageView.setImageResource(data.get(position).getImageId());
+//            holder.imageView.setImageResource(data.get(position).getImageId());
             holder.cityNameView.setText(data.get(position).getCityName());
             holder.currentWeatherView.setText(data.get(position).getCurrentWeather());
         } catch (Exception e) {

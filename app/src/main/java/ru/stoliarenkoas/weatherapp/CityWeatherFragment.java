@@ -25,7 +25,7 @@ public class CityWeatherFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_city_weather, container, false);
-        setRetainInstance(true); //doesn't work
+        setRetainInstance(true);
         return view;
     }
 
