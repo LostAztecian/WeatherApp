@@ -1,8 +1,11 @@
 package ru.stoliarenkoas.weatherapp;
 
+import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.multidex.MultiDex;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -76,6 +79,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onStart();
         getParameters();
         updateWeather();
+
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(newBase);
+        MultiDex.install(newBase);
     }
 
     @Override
@@ -99,12 +109,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        new AsyncTask<Integer, Integer, Object>() {
+            Integer i;
+
+            @Override
+            protected void onProgressUpdate(Integer... values) {
+                System.out.println("Current num is: " + i);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            protected Object doInBackground(Integer... integers) {
+                i = integers[0];
+                while (i > 0) {
+                    publishProgress(i--);}
+                return null;
+            }
+        }.execute(10);
+
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
             Toast.makeText(this, "Settings pressed!", Toast.LENGTH_LONG).show();
             return true;
         }
+
 
         return super.onOptionsItemSelected(item);
     }
