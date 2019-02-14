@@ -28,7 +28,6 @@ import java.util.List;
 import ru.stoliarenkoas.weatherapp.browser.BrowserFragment;
 import ru.stoliarenkoas.weatherapp.player.App;
 import ru.stoliarenkoas.weatherapp.player.AudioPlayer;
-import ru.stoliarenkoas.weatherapp.player.AudioService;
 import ru.stoliarenkoas.weatherapp.player.PlayerFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -44,15 +43,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Switch showHumidity;
     private Switch showPressure;
     private Switch showTemperature;
+
     private RecyclerView recyclerView;
 
     private Button playButton;
+    private Button confirmSelectionButton;
 
     private String cityName;
     private String currentWeather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -70,37 +72,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         cards = new ArrayList<>();
         cards.add(new WeatherCard("Mordor", "Storming Clouds", R.id.image_weather));
 
-        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout_main, citySelectionFragment).commit();
-
-//        weatherVisible = getWeatherFragmentVisibility();
-//        cards = weatherFragment.getCards();
-
-//        createRecyclerView();
-    }
-
-    private void createRecyclerView() {
-        if (recyclerView != null) return;
-        recyclerView = (RecyclerView) citySelectionFragment.getActivity().findViewById(R.id.recycler_view);
-        LinearLayoutManager manager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(manager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        adapter = new WeatherCardAdapter(cards);
-        adapter.setOnItemClickListener(new WeatherCardAdapter.OnItemClickListener() {
-            @Override
-            public void onLongClick(View view, int position) {
-                cards.remove(position);
-                adapter.notifyItemRemoved(position);
-            }
-        });
-        recyclerView.setAdapter(adapter);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        prepareCitySelection();
         getParameters();
         updateWeather();
-
     }
 
     @Override
@@ -134,9 +113,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if (getSupportFragmentManager().getFragments().contains(cityWeatherFragment)) {
+            prepareCitySelection();
         } else super.onBackPressed();
     }
 
@@ -205,6 +186,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    private void prepareCitySelection() {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_layout_main, citySelectionFragment).commitNow();
+
+        confirmSelectionButton = findViewById(R.id.button_confirm_selection);
+        confirmSelectionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getParameters();
+                updateWeather();
+                prepareCityWeather();
+                cards.add(new WeatherCard(cityName, currentWeather, R.drawable.cloudy));
+            }
+        });
+    }
+
+    private void prepareCityWeather() {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_layout_main, cityWeatherFragment).runOnCommit(new Runnable() {
+            @Override
+            public void run() {
+                createRecyclerView();
+                adapter.notifyItemInserted(0);
+            }
+        }).commit();
+    }
+
+    private void createRecyclerView() {
+        recyclerView = findViewById(R.id.recycler_view);
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(manager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        adapter = new WeatherCardAdapter(cards);
+        adapter.setOnItemClickListener(new WeatherCardAdapter.OnItemClickListener() {
+            @Override
+            public void onLongClick(View view, int position) {
+                cards.remove(position);
+                adapter.notifyItemRemoved(position);
+            }
+        });
+        recyclerView.setAdapter(adapter);
+    }
+
     private void updateWeather() {
         StringBuilder sb = new StringBuilder("Storming clouds");
         if (showTemperature.isChecked()) sb.append(", 271K");
@@ -220,15 +244,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         showTemperature = ((Switch)findViewById(R.id.switch_show_temperature));
         showHumidity = ((Switch)findViewById(R.id.switch_show_humidity));
         showPressure = ((Switch)findViewById(R.id.switch_show_pressure));
-//        createRecyclerView();
-    }
-
-    public void confirmSelection(View view) {
-        getParameters();
-        updateWeather();
-
-        cards.add(0, new WeatherCard(cityName, currentWeather, R.drawable.cloudy));
-        adapter.notifyItemInserted(0);
     }
 
     @Override
