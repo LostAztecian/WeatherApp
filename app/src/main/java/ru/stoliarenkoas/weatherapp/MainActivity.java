@@ -1,12 +1,9 @@
 package ru.stoliarenkoas.weatherapp;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,35 +17,39 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ru.stoliarenkoas.weatherapp.browser.BrowserFragment;
+import ru.stoliarenkoas.weatherapp.player.App;
+import ru.stoliarenkoas.weatherapp.player.AudioPlayer;
+import ru.stoliarenkoas.weatherapp.player.AudioService;
 import ru.stoliarenkoas.weatherapp.player.PlayerFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "QWEQWE";
-    private ArrayList<WeatherCard> cards;
+    private List<WeatherCard> cards;
     WeatherCardAdapter adapter;
-
-    private boolean weatherVisible;
-    private View weatherFragmentView;
-    private View selectionFragmentView;
 
     private final PlayerFragment playerFragment = new PlayerFragment();
     private final BrowserFragment browserFragment = new BrowserFragment();
     private final CitySelectionFragment citySelectionFragment = new CitySelectionFragment();
     private final CityWeatherFragment cityWeatherFragment = new CityWeatherFragment();
 
-    private String cityName;
-    private String currentWeather;
-
     private Switch showHumidity;
     private Switch showPressure;
     private Switch showTemperature;
+    private RecyclerView recyclerView;
+
+    private Button playButton;
+
+    private String cityName;
+    private String currentWeather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,25 +67,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout_main, new CitySelectionFragment()).commit();
+        cards = new ArrayList<>();
+        cards.add(new WeatherCard("Mordor", "Storming Clouds", R.id.image_weather));
+
+        getSupportFragmentManager().beginTransaction().add(R.id.frame_layout_main, citySelectionFragment).commit();
 
 //        weatherVisible = getWeatherFragmentVisibility();
-//        CityWeatherFragment weatherFragment = (CityWeatherFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_city_weather);
 //        cards = weatherFragment.getCards();
 
-//        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-//        LinearLayoutManager manager = new LinearLayoutManager(this);
-//        recyclerView.setLayoutManager(manager);
-//        recyclerView.setItemAnimator(new DefaultItemAnimator());
-//        adapter = new WeatherCardAdapter(cards);
-//        adapter.setOnItemClickListener(new WeatherCardAdapter.OnItemClickListener() {
-//            @Override
-//            public void onLongClick(View view, int position) {
-//                cards.remove(position);
-//                adapter.notifyItemRemoved(position);
-//            }
-//        });
-//        recyclerView.setAdapter(adapter);
+//        createRecyclerView();
+    }
+
+    private void createRecyclerView() {
+        if (recyclerView != null) return;
+        recyclerView = (RecyclerView) citySelectionFragment.getActivity().findViewById(R.id.recycler_view);
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(manager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        adapter = new WeatherCardAdapter(cards);
+        adapter.setOnItemClickListener(new WeatherCardAdapter.OnItemClickListener() {
+            @Override
+            public void onLongClick(View view, int position) {
+                cards.remove(position);
+                adapter.notifyItemRemoved(position);
+            }
+        });
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -125,11 +133,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(newBase);
-    }
-
-    @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -145,7 +148,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
@@ -153,11 +155,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return true;
         }
 
-
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_main, citySelectionFragment).addToBackStack("TAG").commit();
         } else if (id == R.id.nav_player) {
             Log.d(TAG, "Player fragment");
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_main, playerFragment).addToBackStack("TAG").commit();
+            preparePlayer();
         } else if (id == R.id.nav_browser) {
             Log.d(TAG, "Browser fragment");
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_main, browserFragment).addToBackStack("TAG").commit();
@@ -180,14 +180,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    private boolean getWeatherFragmentVisibility() {
-        selectionFragmentView = findViewById(R.id.fragment_city_selection);
-        if ("ghosty".equals(((View)selectionFragmentView.getParent()).getTag())) {
-            weatherFragmentView = findViewById(R.id.fragment_city_weather);
-            weatherFragmentView.setVisibility(View.INVISIBLE);
-            return false;
+    private void preparePlayer() {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_layout_main, playerFragment).commitNow();
+
+        playButton = findViewById(R.id.button_play);
+        final AudioPlayer player = ((App)getApplication()).getPlayer();
+        if (player == null) {
+            Toast.makeText(this, "Service down!", Toast.LENGTH_SHORT);
+            return;
         }
-        return true;
+
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!player.isPlaying()) {
+                    player.play();
+                    playButton.setText(R.string.player_pause);
+                } else {
+                    player.pause();
+                    playButton.setText(R.string.player_play);
+                }
+            }
+        });
     }
 
     private void updateWeather() {
@@ -205,18 +220,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         showTemperature = ((Switch)findViewById(R.id.switch_show_temperature));
         showHumidity = ((Switch)findViewById(R.id.switch_show_humidity));
         showPressure = ((Switch)findViewById(R.id.switch_show_pressure));
+//        createRecyclerView();
     }
 
     public void confirmSelection(View view) {
         getParameters();
         updateWeather();
 
-        if (!weatherVisible) {
-            selectionFragmentView.setVisibility(View.INVISIBLE);
-            weatherFragmentView.setVisibility(View.VISIBLE);
-        }
-
         cards.add(0, new WeatherCard(cityName, currentWeather, R.drawable.cloudy));
         adapter.notifyItemInserted(0);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

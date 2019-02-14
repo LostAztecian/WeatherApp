@@ -17,4 +17,7 @@
     <string name="switch_show_temperature">Show temperature</string>
     <string name="switch_show_pressure">Show pressure</string>
     <string name="switch_show_humidity">Show humidity</string>
+
+    <string name="player_play">PLAY</string>
+    <string name="player_pause">PAUSE</string>
 </resources>
