@@ -10,11 +10,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import lombok.Setter;
 
 public class WeatherCardAdapter extends RecyclerView.Adapter<WeatherCardAdapter.ViewHolder> {
-    private final ArrayList<WeatherCard> data;
+    private final List<WeatherCard> data;
     @Setter private OnItemClickListener onItemClickListener;
 
     public class ViewHolder extends RecyclerView.ViewHolder{
@@ -44,7 +45,7 @@ public class WeatherCardAdapter extends RecyclerView.Adapter<WeatherCardAdapter.
         void onLongClick(View view, int position);
     }
 
-    public WeatherCardAdapter(ArrayList<WeatherCard> data) {
+    public WeatherCardAdapter(List<WeatherCard> data) {
         this.data = data;
     }
 

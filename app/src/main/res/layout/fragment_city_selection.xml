@@ -41,7 +41,6 @@
         android:id="@+id/button_confirm_selection"
         style="@style/StyleSettingsElement"
         android:text="@string/button_confirm_selection"
-        android:onClick="confirmSelection"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
