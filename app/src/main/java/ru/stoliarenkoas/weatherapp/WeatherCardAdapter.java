@@ -38,11 +38,20 @@ public class WeatherCardAdapter extends RecyclerView.Adapter<WeatherCardAdapter.
                     return false;
                 }
             });
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onItemClickListener != null) {
+                        onItemClickListener.onShortClick(v, getAdapterPosition());
+                    }
+                }
+            });
         }
     }
 
     public interface OnItemClickListener {
         void onLongClick(View view, int position);
+        void onShortClick(View view, int position);
     }
 
     public WeatherCardAdapter(List<WeatherCard> data) {

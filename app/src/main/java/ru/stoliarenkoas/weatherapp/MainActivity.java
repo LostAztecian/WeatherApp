@@ -2,13 +2,12 @@ package ru.stoliarenkoas.weatherapp;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -21,7 +20,16 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import ru.stoliarenkoas.weatherapp.model.CityWeather;
+
 public class MainActivity extends AppCompatActivity {
+    private static final String API_KEY = "94839b6ec98f46155c21e102241c4578";
+    private OpenWeatherService openWeatherService;
     private static final String TAG = "QWEQWE";
     private List<WeatherCard> cards;
     WeatherCardAdapter adapter;
@@ -45,7 +53,11 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         cards = new ArrayList<>();
-        cards.add(new WeatherCard("Mordor", "Storming Clouds", R.id.image_weather));
+        cards.add(new WeatherCard("Kyiv", "", R.drawable.cloudy));
+        cards.add(new WeatherCard("Moscow", "", R.drawable.cloudy));
+        cards.add(new WeatherCard("Washington", "", R.drawable.cloudy));
+
+        initiateRetrofit();
     }
 
     @Override
@@ -67,6 +79,42 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadSwitchesState();
+        for (WeatherCard card : cards) {
+            requestWeather(card);
+            try {
+                Thread.sleep(1000); //SERVER DELAY
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void initiateRetrofit() {
+        openWeatherService = new Retrofit.Builder()
+                .baseUrl("https://api.openweathermap.org/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(OpenWeatherService.class);
+    }
+
+    private void requestWeather(@NonNull final WeatherCard card) {
+        Call<CityWeather> call = openWeatherService.cityWeather(card.getCityName(), API_KEY);
+        call.enqueue(new Callback<CityWeather>() {
+            @Override
+            public void onResponse(Call<CityWeather> call, Response<CityWeather> response) {
+                try {
+                    card.setCurrentWeather(response.body().getWeatherType()[0].getDescription());
+                    adapter.notifyItemChanged(cards.indexOf(card));
+                } catch (Exception e) {
+                    Log.d(TAG, e.getMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CityWeather> call, Throwable t) {
+
+            }
+        });
     }
 
     public void saveSwitchesState() {
@@ -115,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
                 getParameters();
                 updateWeather();
                 cards.add(new WeatherCard(cityName, currentWeather, R.drawable.cloudy));
+                requestWeather(cards.get(cards.size()-1));
             }
         });
     }
@@ -130,6 +179,10 @@ public class MainActivity extends AppCompatActivity {
             public void onLongClick(View view, int position) {
                 cards.remove(position);
                 adapter.notifyItemRemoved(position);
+            }
+            @Override
+            public void onShortClick(View view, int position) {
+                Log.d(TAG, cards.get(position).getCityName() + ":" + cards.get(position).getCurrentWeather());
             }
         });
         recyclerView.setAdapter(adapter);
