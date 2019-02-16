@@ -1,6 +1,5 @@
 package ru.stoliarenkoas.weatherapp;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -10,9 +9,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -25,20 +21,10 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.stoliarenkoas.weatherapp.browser.BrowserFragment;
-import ru.stoliarenkoas.weatherapp.player.App;
-import ru.stoliarenkoas.weatherapp.player.AudioPlayer;
-import ru.stoliarenkoas.weatherapp.player.PlayerFragment;
-
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = "QWEQWE";
     private List<WeatherCard> cards;
     WeatherCardAdapter adapter;
-
-    private final PlayerFragment playerFragment = new PlayerFragment();
-    private final BrowserFragment browserFragment = new BrowserFragment();
-    private final CitySelectionFragment citySelectionFragment = new CitySelectionFragment();
-    private final CityWeatherFragment cityWeatherFragment = new CityWeatherFragment();
 
     private Switch showHumidity;
     private Switch showPressure;
@@ -46,7 +32,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private RecyclerView recyclerView;
 
-    private Button playButton;
     private Button confirmSelectionButton;
 
     private String cityName;
@@ -54,29 +39,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
         cards = new ArrayList<>();
         cards.add(new WeatherCard("Mordor", "Storming Clouds", R.id.image_weather));
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        createRecyclerView();
         prepareCitySelection();
         getParameters();
         updateWeather();
@@ -113,12 +88,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else if (getSupportFragmentManager().getFragments().contains(cityWeatherFragment)) {
-            prepareCitySelection();
-        } else super.onBackPressed();
+        super.onBackPressed();
     }
 
     @Override
@@ -130,87 +100,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
         if (id == R.id.action_settings) {
             Toast.makeText(this, "Settings pressed!", Toast.LENGTH_LONG).show();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-
-        int id = item.getItemId();
-
-        if (id == R.id.nav_weather) {
-            Log.d(TAG, "Weather fragment");
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_main, citySelectionFragment).addToBackStack("TAG").commit();
-        } else if (id == R.id.nav_player) {
-            Log.d(TAG, "Player fragment");
-            preparePlayer();
-        } else if (id == R.id.nav_browser) {
-            Log.d(TAG, "Browser fragment");
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_main, browserFragment).addToBackStack("TAG").commit();
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-
-    }
-
-    private void preparePlayer() {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frame_layout_main, playerFragment).commitNow();
-
-        playButton = findViewById(R.id.button_play);
-        final AudioPlayer player = ((App)getApplication()).getPlayer();
-        if (player == null) {
-            Toast.makeText(this, "Service down!", Toast.LENGTH_SHORT);
-            return;
-        }
-
-        playButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!player.isPlaying()) {
-                    player.play();
-                    playButton.setText(R.string.player_pause);
-                } else {
-                    player.pause();
-                    playButton.setText(R.string.player_play);
-                }
-            }
-        });
-    }
-
     private void prepareCitySelection() {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frame_layout_main, citySelectionFragment).commitNow();
-
         confirmSelectionButton = findViewById(R.id.button_confirm_selection);
         confirmSelectionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getParameters();
                 updateWeather();
-                prepareCityWeather();
                 cards.add(new WeatherCard(cityName, currentWeather, R.drawable.cloudy));
             }
         });
-    }
-
-    private void prepareCityWeather() {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frame_layout_main, cityWeatherFragment).runOnCommit(new Runnable() {
-            @Override
-            public void run() {
-                createRecyclerView();
-                adapter.notifyItemInserted(0);
-            }
-        }).commit();
     }
 
     private void createRecyclerView() {
@@ -246,8 +152,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         showPressure = ((Switch)findViewById(R.id.switch_show_pressure));
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
 }

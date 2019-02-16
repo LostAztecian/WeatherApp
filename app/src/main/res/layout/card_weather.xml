@@ -16,11 +16,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ru.stoliarenkoas.weatherapp.WeatherIconView
+            <ImageView
                 android:id="@+id/image_weather"
                 style="@style/StyleWeatherImage"
-                android:layout_height="200px"
-                android:layout_width="200px"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 
