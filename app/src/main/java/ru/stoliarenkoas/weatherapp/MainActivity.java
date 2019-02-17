@@ -1,41 +1,38 @@
 package ru.stoliarenkoas.weatherapp;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.View;
-import android.support.design.widget.NavigationView;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
-import android.widget.Switch;
-import android.widget.TextView;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import ru.stoliarenkoas.weatherapp.model.CityWeather;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "QWEQWE";
+    private static final String API_KEY = "94839b6ec98f46155c21e102241c4578";
+    private static final String TAG = "QWE";
     private List<WeatherCard> cards;
-    WeatherCardAdapter adapter;
+    private WeatherCardAdapter adapter;
+    private OpenWeatherService openWeatherService;
+    private Call<CityWeather> call;
 
-    private Switch showHumidity;
-    private Switch showPressure;
-    private Switch showTemperature;
-
-    private RecyclerView recyclerView;
-
-    private Button confirmSelectionButton;
-
-    private String cityName;
-    private String currentWeather;
+    private EditText inputField;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,52 +41,17 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        cards = new ArrayList<>();
-        cards.add(new WeatherCard("Mordor", "Storming Clouds", R.id.image_weather));
+        openWeatherService = ((App)getApplication()).getOpenWeatherService();
+
+        cards = new ArrayList<>(1);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        createRecyclerView();
         prepareCitySelection();
-        getParameters();
-        updateWeather();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        saveSwitchesState();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        loadSwitchesState();
-    }
-
-    public void saveSwitchesState() {
-        SharedPreferences prefs = getSharedPreferences(TAG, MODE_PRIVATE);
-        SharedPreferences.Editor edit = prefs.edit();
-        edit.putBoolean("showTemperature", showTemperature.isChecked()).apply();
-        edit.putBoolean("showHumidity", showHumidity.isChecked()).apply();
-        edit.putBoolean("showPressure", showPressure.isChecked()).apply();
-        edit.commit();
-    }
-
-    public void loadSwitchesState() {
-        SharedPreferences prefs = getSharedPreferences(TAG, MODE_PRIVATE);
-        showTemperature.setChecked(prefs.getBoolean("showTemperature", false));
-        showHumidity.setChecked(prefs.getBoolean("showHumidity", false));
-        showPressure.setChecked(prefs.getBoolean("showPressure", false));
-        Log.d(TAG, String.format("Switches state: temp-%b, humid-%b, press-%b%n", showTemperature, showHumidity, showPressure));
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -108,22 +70,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void prepareCitySelection() {
-        confirmSelectionButton = findViewById(R.id.button_confirm_selection);
+        inputField = findViewById(R.id.edit_text_input_city);
+        createRecyclerView();
+        Button confirmSelectionButton = findViewById(R.id.button_confirm_input);
         confirmSelectionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getParameters();
-                updateWeather();
-                cards.add(new WeatherCard(cityName, currentWeather, R.drawable.cloudy));
+                cards.add(new WeatherCard(inputField.getText().toString(), "", R.drawable.cloudy));
+                requestWeather(cards.get(cards.size()-1));
             }
         });
     }
 
     private void createRecyclerView() {
-        recyclerView = findViewById(R.id.recycler_view);
-        LinearLayoutManager manager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(manager);
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        initRecyclerViewAdapter();
+        recyclerView.setAdapter(adapter);
+        addFewCards();
+    }
+
+    private void addFewCards() {
+        cards.add(new WeatherCard("Kyiv", "", R.drawable.cloudy));
+        cards.add(new WeatherCard("Moscow", "", R.drawable.cloudy));
+        cards.add(new WeatherCard("Washington", "", R.drawable.cloudy));
+        adapter.notifyDataSetChanged();
+    }
+
+    private void initRecyclerViewAdapter() {
         adapter = new WeatherCardAdapter(cards);
         adapter.setOnItemClickListener(new WeatherCardAdapter.OnItemClickListener() {
             @Override
@@ -131,25 +106,44 @@ public class MainActivity extends AppCompatActivity {
                 cards.remove(position);
                 adapter.notifyItemRemoved(position);
             }
+            @Override
+            public void onShortClick(View view, int position) {
+                requestWeather(cards.get(position));
+                Log.d(TAG, cards.get(position).getCityName() + ":" + cards.get(position).getCurrentWeather());
+            }
         });
-        recyclerView.setAdapter(adapter);
     }
 
-    private void updateWeather() {
-        StringBuilder sb = new StringBuilder("Storming clouds");
-        if (showTemperature.isChecked()) sb.append(", 271K");
-        if (showHumidity.isChecked()) sb.append(", 31%");
-        if (showPressure.isChecked()) sb.append(", 760mm");
-        sb.append(".");
-        currentWeather = sb.toString();
+    private void requestWeather(@NonNull final WeatherCard card) {
+        call = openWeatherService.cityWeather(card.getCityName(), API_KEY);
+        call.enqueue(new Callback<CityWeather>() {
+            @Override
+            public void onResponse(Call<CityWeather> call, Response<CityWeather> response) {
+                try {
+                    final String description = response.body().getWeatherType()[0].getDescription();
+                    final float temperature = response.body().getWeatherMain().getTemperature() - 273;
+                    card.setCurrentWeather(String.format(Locale.ENGLISH, "%s: %.2f°C", description, temperature));
+                    adapter.notifyItemChanged(cards.indexOf(card));
+                } catch (Exception e) {
+                    Log.d(TAG, e.getMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CityWeather> call, Throwable t) {
+                try {
+                    card.setCurrentWeather("old weather: date");
+                    adapter.notifyItemChanged(cards.indexOf(card));
+                } catch (Exception e) {
+                    Log.d(TAG, e.getMessage());
+                }
+            }
+        });
     }
 
-    private void getParameters() {
-        cityName = ((TextView)findViewById(R.id.settings_input_city)).getText().toString();
-        if (cityName.isEmpty()) cityName = "Manhattan";
-        showTemperature = ((Switch)findViewById(R.id.switch_show_temperature));
-        showHumidity = ((Switch)findViewById(R.id.switch_show_humidity));
-        showPressure = ((Switch)findViewById(R.id.switch_show_pressure));
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (call != null) call.cancel();
     }
-
 }

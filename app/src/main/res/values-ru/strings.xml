@@ -2,7 +2,7 @@
 <resources>
 
     <string name="action_settings">Настройки</string>
-    <string name="title">Погода</string>
+    <string name="recent_cities_title">Погода</string>
     <string name="settings">Настройки</string>
     <string name="city">Город</string>
     <string name="selection_city">Введите город</string>

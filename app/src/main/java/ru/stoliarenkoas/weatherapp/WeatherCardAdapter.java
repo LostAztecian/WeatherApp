@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Setter;
@@ -22,12 +21,14 @@ public class WeatherCardAdapter extends RecyclerView.Adapter<WeatherCardAdapter.
         private ImageView imageView;
         private TextView cityNameView;
         private TextView currentWeatherView;
+        private TextView exitButtonView;
 
         public ViewHolder(@NonNull CardView view) {
             super(view);
-            imageView = view.findViewById(R.id.image_weather);
-            cityNameView = view.findViewById(R.id.main_text_city_name);
-            currentWeatherView = view.findViewById(R.id.main_text_city_weather);
+            imageView = view.findViewById(R.id.card_image_weather);
+            cityNameView = view.findViewById(R.id.card_text_city_name);
+            currentWeatherView = view.findViewById(R.id.card_text_city_weather);
+            exitButtonView = view.findViewById(R.id.card_button_exit);
             view.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -38,11 +39,28 @@ public class WeatherCardAdapter extends RecyclerView.Adapter<WeatherCardAdapter.
                     return false;
                 }
             });
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onItemClickListener != null) {
+                        onItemClickListener.onShortClick(v, getAdapterPosition());
+                    }
+                }
+            });
+            exitButtonView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onItemClickListener != null) {
+                        onItemClickListener.onLongClick(v, getAdapterPosition());
+                    }
+                }
+            });
         }
     }
 
     public interface OnItemClickListener {
         void onLongClick(View view, int position);
+        void onShortClick(View view, int position);
     }
 
     public WeatherCardAdapter(List<WeatherCard> data) {

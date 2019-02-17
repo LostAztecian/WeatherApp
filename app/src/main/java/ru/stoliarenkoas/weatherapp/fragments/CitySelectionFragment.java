@@ -1,4 +1,4 @@
-package ru.stoliarenkoas.weatherapp;
+package ru.stoliarenkoas.weatherapp.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import ru.stoliarenkoas.weatherapp.R;
 
 public class CitySelectionFragment extends Fragment {
 
