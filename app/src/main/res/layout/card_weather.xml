@@ -17,38 +17,46 @@
             android:layout_height="wrap_content">
 
             <ImageView
-                android:id="@+id/image_weather"
+                android:id="@+id/card_image_weather"
                 style="@style/StyleWeatherImage"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 
             <TextView
-                android:id="@+id/main_text_city_name"
+                android:id="@+id/card_button_exit"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:textSize="24dp"
+                android:text="X"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                android:id="@+id/card_text_city_name"
                 android:textAppearance="@style/TextAppearance.AppCompat"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
                 android:layout_marginTop="8dp"
                 tools:text="Manhattan"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                app:layout_constraintStart_toEndOf="@+id/image_weather"
-                app:layout_constraintTop_toTopOf="@+id/image_weather" />
+                app:layout_constraintStart_toEndOf="@+id/card_image_weather"
+                app:layout_constraintTop_toTopOf="@+id/card_image_weather" />
 
             <TextView
-                android:id="@+id/main_text_city_weather"
+                android:id="@+id/card_text_city_weather"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
-                tools:text="          "
+                tools:text="Storming clouds"
                 android:textStyle="italic"
-                app:layout_constraintBottom_toBottomOf="@+id/image_weather"
-                app:layout_constraintStart_toEndOf="@+id/image_weather"
-                app:layout_constraintTop_toBottomOf="@+id/main_text_city_name" />
+                app:layout_constraintBottom_toBottomOf="@+id/card_image_weather"
+                app:layout_constraintStart_toEndOf="@+id/card_image_weather"
+                app:layout_constraintTop_toBottomOf="@+id/card_text_city_name" />
         </android.support.constraint.ConstraintLayout>
 
 

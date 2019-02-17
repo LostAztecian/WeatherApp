@@ -1,4 +1,4 @@
-package ru.stoliarenkoas.weatherapp;
+package ru.stoliarenkoas.weatherapp.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 
 import lombok.Getter;
+import ru.stoliarenkoas.weatherapp.R;
+import ru.stoliarenkoas.weatherapp.WeatherCard;
 
 public class CityWeatherFragment extends Fragment {
     @Getter private ArrayList<WeatherCard> cards = new ArrayList<>();

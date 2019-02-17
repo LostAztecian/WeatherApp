@@ -10,14 +10,8 @@
 
         <fragment
             android:id="@+id/fragment_city_selection"
-            android:name="ru.stoliarenkoas.weatherapp.CitySelectionFragment"
+            android:name="ru.stoliarenkoas.weatherapp.fragments.CitySelectionFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
-        <fragment
-            android:id="@+id/fragment_city_weather"
-            android:name="ru.stoliarenkoas.weatherapp.CityWeatherFragment"
-            android:layout_width="0dp"
             android:layout_height="match_parent"/>
     </FrameLayout>
 
