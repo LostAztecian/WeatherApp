@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
-    <color name="colorTitle">@android:color/holo_blue_dark</color>
+    <color name="colorPrimary">#00BCD4</color>
+    <color name="colorPrimaryDark">#0097A7</color>
+    <color name="colorAccent">#84FFFF</color>
+    <color name="cardColor">#E1F5FE</color>
+    <color name="windowBackground">#E0F7FA</color>
+
+    <color name="textColorPrimary">#00B8D4</color>
+    <color name="textColorSecondary">@android:color/darker_gray</color>
 </resources>

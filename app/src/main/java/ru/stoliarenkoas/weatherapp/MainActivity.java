@@ -15,7 +15,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -43,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
         openWeatherService = ((App)getApplication()).getOpenWeatherService();
 
-        cards = new ArrayList<>(1);
+        cards = ((App) getApplication()).cards;
     }
 
     @Override
@@ -76,10 +75,23 @@ public class MainActivity extends AppCompatActivity {
         confirmSelectionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                cards.add(new WeatherCard(inputField.getText().toString(), "", R.drawable.cloudy));
-                requestWeather(cards.get(cards.size()-1));
+                addCard(inputField.getText().toString());
+                requestWeather(cards.get(0));
             }
         });
+    }
+
+    private void addCard(@NonNull final String cityName) {
+        for (int i = 0; i < cards.size(); i++) {
+            if (cards.get(i).getCityName().equalsIgnoreCase(cityName)) {
+                final WeatherCard card = cards.remove(i);
+                cards.add(0, card);
+                adapter.notifyItemMoved(i, 0);
+                return;
+            }
+        }
+        cards.add(0, new WeatherCard(cityName));
+        adapter.notifyItemInserted(0);
     }
 
     private void createRecyclerView() {
@@ -91,10 +103,11 @@ public class MainActivity extends AppCompatActivity {
         addFewCards();
     }
 
+    //stub
     private void addFewCards() {
-        cards.add(new WeatherCard("Kyiv", "", R.drawable.cloudy));
-        cards.add(new WeatherCard("Moscow", "", R.drawable.cloudy));
-        cards.add(new WeatherCard("Washington", "", R.drawable.cloudy));
+        addCard("Kyiv");
+        addCard("Moscow");
+        addCard("Warsaw");
         adapter.notifyDataSetChanged();
     }
 
@@ -108,7 +121,8 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void onShortClick(View view, int position) {
-                requestWeather(cards.get(position));
+                addCard(cards.get(position).getCityName());
+                requestWeather(cards.get(0));
                 Log.d(TAG, cards.get(position).getCityName() + ":" + cards.get(position).getCurrentWeather());
             }
         });
@@ -120,9 +134,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<CityWeather> call, Response<CityWeather> response) {
                 try {
-                    final String description = response.body().getWeatherType()[0].getDescription();
-                    final float temperature = response.body().getWeatherMain().getTemperature() - 273;
+                    card.setBundle(response.body());
+                    final String description = card.getBundle().getWeatherType()[0].getDescription();
+                    final float temperature = card.getBundle().getWeatherMain().getTemperature() - 273;
+                    final String imageResource = String.format("https://openweathermap.org/img/w/%s.png", card.getBundle().getWeatherType()[0].getIcon());
                     card.setCurrentWeather(String.format(Locale.ENGLISH, "%s: %.2f°C", description, temperature));
+                    card.setImageResource(imageResource);
                     adapter.notifyItemChanged(cards.indexOf(card));
                 } catch (Exception e) {
                     Log.d(TAG, e.getMessage());

@@ -9,11 +9,22 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.BaseRequestOptions;
+import com.bumptech.glide.request.RequestOptions;
+
 import java.util.List;
 
+import jp.wasabeef.glide.transformations.BlurTransformation;
+import jp.wasabeef.glide.transformations.gpu.KuwaharaFilterTransformation;
+import jp.wasabeef.glide.transformations.gpu.SketchFilterTransformation;
+import jp.wasabeef.glide.transformations.gpu.VignetteFilterTransformation;
 import lombok.Setter;
 
+import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
+
 public class WeatherCardAdapter extends RecyclerView.Adapter<WeatherCardAdapter.ViewHolder> {
+    private BaseRequestOptions transformation = bitmapTransform(new SketchFilterTransformation());
     private final List<WeatherCard> data;
     @Setter private OnItemClickListener onItemClickListener;
 
@@ -56,6 +67,9 @@ public class WeatherCardAdapter extends RecyclerView.Adapter<WeatherCardAdapter.
                 }
             });
         }
+        public ImageView getImageView() {
+            return imageView;
+        }
     }
 
     public interface OnItemClickListener {
@@ -71,14 +85,16 @@ public class WeatherCardAdapter extends RecyclerView.Adapter<WeatherCardAdapter.
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_weather, parent, false);
-        ViewHolder viewHolder = new ViewHolder((CardView) view);
-        return viewHolder;
+        return new ViewHolder((CardView) view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         try {
-            holder.imageView.setImageResource(data.get(position).getImageId());
+            Glide.with(holder.imageView)
+                    .load(data.get(position).getImageResource())
+//                    .apply(transformation)
+                    .into(holder.imageView);
             holder.cityNameView.setText(data.get(position).getCityName());
             holder.currentWeatherView.setText(data.get(position).getCurrentWeather());
         } catch (Exception e) {

@@ -7,6 +7,7 @@
     android:elevation="4dp"
     android:layout_margin="8dp"
     card_view:cardCornerRadius="8dp"
+    app:cardBackgroundColor="@color/cardColor"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -19,6 +20,7 @@
             <ImageView
                 android:id="@+id/card_image_weather"
                 style="@style/StyleWeatherImage"
+                android:background="@color/cardColor"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 
@@ -34,7 +36,6 @@
 
             <TextView
                 android:id="@+id/card_text_city_name"
-                android:textAppearance="@style/TextAppearance.AppCompat"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_marginStart="8dp"

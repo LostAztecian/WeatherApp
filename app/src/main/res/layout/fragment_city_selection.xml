@@ -14,6 +14,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginTop="72dp"
         android:text="@string/city"
+        android:textColor="@color/textColorSecondary"
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -33,6 +34,7 @@
         style="@style/StyleSettingsElement"
         android:layout_width="48dp"
         android:text="@string/button_confirm_selection"
+        android:textColor="@color/textColorSecondary"
         app:layout_constraintBottom_toBottomOf="@id/edit_text_input_city"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -40,6 +42,7 @@
         android:id="@+id/main_title"
         style="@style/StyleTitleElement"
         android:text="@string/recent_cities_title"
+        android:textColor="@color/textColorSecondary"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/edit_text_input_city" />
