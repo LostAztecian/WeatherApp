@@ -17,12 +17,6 @@ import ru.stoliarenkoas.weatherapp.WeatherCard;
 public class CityWeatherFragment extends Fragment {
     @Getter private ArrayList<WeatherCard> cards = new ArrayList<>();
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -30,10 +24,4 @@ public class CityWeatherFragment extends Fragment {
         setRetainInstance(true);
         return view;
     }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
 }

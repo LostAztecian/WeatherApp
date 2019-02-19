@@ -1,13 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+<ScrollView android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     tools:context=".fragments.CityWeatherFragment">
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/weather_fragment_image_weather_type"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/small_margin"
+            android:layout_marginEnd="@dimen/small_margin"
+            app:layout_constraintBottom_toBottomOf="@+id/weather_fragment_text_weather_description"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/weather_fragment_text_city_name"
+            tools:src="@tools:sample/avatars[3]" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_city_name"
+            style="@style/StyleCityWeatherElement.Name"
+            android:layout_marginTop="@dimen/app_bar_margin"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="CityName" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_weather_description"
+            style="@style/StyleCityWeatherElement.Name"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/weather_fragment_text_city_name"
+            tools:text="Weather Type" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_temperature"
+            style="@style/StyleCityWeatherElement.Name"
+            android:layout_marginTop="@dimen/normal_margin"
+            android:text="@string/temperature"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/weather_fragment_text_weather_description" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_temperature_value"
+            style="@style/StyleCityWeatherElement"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintBottom_toBottomOf="@+id/weather_fragment_text_temperature"
+            app:layout_constraintTop_toTopOf="@+id/weather_fragment_text_temperature"
+            tools:text="temperature value" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_temperature_max"
+            style="@style/StyleCityWeatherElement.Name"
+            android:text="@string/temp_max"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/weather_fragment_text_temperature" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_temperature_max_value"
+            style="@style/StyleCityWeatherElement"
+            app:layout_constraintBottom_toBottomOf="@+id/weather_fragment_text_temperature_max"
+            app:layout_constraintTop_toTopOf="@+id/weather_fragment_text_temperature_max"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            tools:text="temp max value" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_temperature_min"
+            style="@style/StyleCityWeatherElement.Name"
+            android:text="@string/temp_min"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/weather_fragment_text_temperature_max" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_temperature_min_value"
+            style="@style/StyleCityWeatherElement"
+            app:layout_constraintBottom_toBottomOf="@+id/weather_fragment_text_temperature_min"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="@+id/weather_fragment_text_temperature_min"
+            tools:text="temp min value" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_humidity"
+            style="@style/StyleCityWeatherElement.Name"
+            android:text="@string/humidity"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/weather_fragment_text_temperature_min" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_humidity_value"
+            style="@style/StyleCityWeatherElement"
+            app:layout_constraintBottom_toBottomOf="@+id/weather_fragment_text_humidity"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="@+id/weather_fragment_text_humidity"
+            tools:text="humidity value" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_pressure"
+            style="@style/StyleCityWeatherElement.Name"
+            android:text="@string/pressure"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/weather_fragment_text_humidity" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_pressure_value"
+            style="@style/StyleCityWeatherElement"
+            app:layout_constraintBottom_toBottomOf="@+id/weather_fragment_text_pressure"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="@+id/weather_fragment_text_pressure"
+            tools:text="pressure value" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_wind_speed"
+            style="@style/StyleCityWeatherElement.Name"
+            android:text="@string/wind_speed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/weather_fragment_text_pressure" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_wind_speed_value"
+            style="@style/StyleCityWeatherElement"
+            app:layout_constraintBottom_toBottomOf="@+id/weather_fragment_text_wind_speed"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="@+id/weather_fragment_text_wind_speed"
+            tools:text="wind_speed value" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_wind_direction"
+            style="@style/StyleCityWeatherElement.Name"
+            android:text="@string/wind_direction"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/weather_fragment_text_wind_speed" />
+
+        <TextView
+            android:id="@+id/weather_fragment_text_wind_direction_value"
+            style="@style/StyleCityWeatherElement"
+            app:layout_constraintBottom_toBottomOf="@+id/weather_fragment_text_wind_direction"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="@+id/weather_fragment_text_wind_direction"
+            tools:text="wind_direction value" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="160dp" />
 
 
-
-
-</android.support.constraint.ConstraintLayout>
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>

@@ -33,8 +33,8 @@
         android:id="@+id/button_confirm_input"
         style="@style/StyleSettingsElement"
         android:layout_width="48dp"
-        android:text="@string/button_confirm_selection"
-        android:textColor="@color/textColorSecondary"
+        android:elevation="8dp"
+        android:background="@drawable/ic_done_cyan_18dp"
         app:layout_constraintBottom_toBottomOf="@id/edit_text_input_city"
         app:layout_constraintEnd_toEndOf="parent" />
 
