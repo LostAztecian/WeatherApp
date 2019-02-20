@@ -9,8 +9,8 @@ import lombok.ToString;
 @Getter @Setter @ToString
 public class CityWeather {
     private long id;
-    @SerializedName("name") private String city;
     private int visibility;
+    @SerializedName("name") private String city;
     @SerializedName("sys") private WeatherCountry weatherCountry;
     @SerializedName("coord") private Coordinates coordinates;
     @SerializedName("weather") private WeatherType[] weatherType;

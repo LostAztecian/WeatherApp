@@ -11,8 +11,4 @@ public class WeatherType {
     @SerializedName("main") private String type;
     private String description;
     private String icon;
-
-    public String getDescription() {
-        return description;
-    }
 }
