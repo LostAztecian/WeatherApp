@@ -8,4 +8,7 @@ import ru.stoliarenkoas.weatherapp.model.CityWeather;
 public interface OpenWeatherService {
     @GET("data/2.5/weather")
     Call<CityWeather> cityWeather(@Query("q") String cityName, @Query("appid") String appid);
+
+    @GET("data/2.5/weather")
+    Call<CityWeather> locationWeather(@Query("lat") String latitude, @Query("lon") String longitude, @Query("appid") String appid);
 }

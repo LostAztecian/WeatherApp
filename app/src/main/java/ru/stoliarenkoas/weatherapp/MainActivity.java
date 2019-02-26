@@ -1,7 +1,15 @@
 package ru.stoliarenkoas.weatherapp;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,14 +17,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -29,6 +35,7 @@ import retrofit2.Response;
 import ru.stoliarenkoas.weatherapp.db.DataBaseHelper;
 import ru.stoliarenkoas.weatherapp.db.WeatherDataBase;
 import ru.stoliarenkoas.weatherapp.model.CityWeather;
+import ru.stoliarenkoas.weatherapp.model.Coordinates;
 
 public class MainActivity extends AppCompatActivity {
     private static final String API_KEY = "94839b6ec98f46155c21e102241c4578";
@@ -47,10 +54,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        openWeatherService = ((App)getApplication()).getOpenWeatherService();
+        openWeatherService = ((App) getApplication()).getOpenWeatherService();
         dataBase = new WeatherDataBase(new DataBaseHelper(this));
 
         cards = ((App) getApplication()).cards;
@@ -61,13 +68,48 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         prepareCitySelection();
         dataBase.open();
-        cards.addAll(dataBase.getCards());
+        if (cards.isEmpty()) cards.addAll(dataBase.getCards());
+        if (cards.isEmpty()) addCurrentLocationWeather();
         if (cards.isEmpty()) cards.add(new WeatherCard("Moscow"));
         if (findViewById(R.id.frame_layout_main) != null) {
             citySelectionView = findViewById(R.id.fragment_city_selection);
             cityWeatherView = findViewById(R.id.fragment_city_weather);
             cityWeatherView.setVisibility(View.INVISIBLE);
         } else requestWeather(cards.get(0));
+    }
+
+    private void addCurrentLocationWeather() {
+        if (ActivityCompat.checkSelfPermission(this, LOCATION_SERVICE) == PackageManager.PERMISSION_GRANTED) {
+            requestCurrentLocationWeather();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 747);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 747) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                requestCurrentLocationWeather();
+            }
+        }
+    }
+
+    private void requestCurrentLocationWeather() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        if (location == null) return;
+        addCard("current");
+        final Coordinates coords = new Coordinates();
+        coords.setLatitude((float) location.getLatitude());
+        coords.setLongitude((float) location.getLongitude());
+        cards.get(0).setBundle(new CityWeather());
+        cards.get(0).getBundle().setCoordinates(coords);
+        requestWeather(cards.get(0));
     }
 
     @Override
@@ -94,16 +136,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            Toast.makeText(this, "Settings pressed!", Toast.LENGTH_LONG).show();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void prepareCitySelection() {
@@ -159,11 +191,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestWeather(@NonNull final WeatherCard card) {
-        call = openWeatherService.cityWeather(card.getCityName(), API_KEY);
+        if (card.getCityName().equals("current")) {
+            String lat = String.format(Locale.ENGLISH, "%.5f", card.getBundle().getCoordinates().getLatitude());
+            String lon = String.format(Locale.ENGLISH, "%.5f", card.getBundle().getCoordinates().getLongitude());
+            System.out.printf("weather?lat=%s&lon=%s&appid=%s%n", lat, lon, API_KEY);
+            call = openWeatherService.locationWeather(lat, lon, API_KEY);
+        } else call = openWeatherService.cityWeather(card.getCityName(), API_KEY);
         call.enqueue(new Callback<CityWeather>() {
             @Override
             public void onResponse(Call<CityWeather> call, Response<CityWeather> response) {
+                System.out.println("onResponse");
                 try {
+                    boolean showInstantly = true;
+                    if (card.getCityName().equals("current")) {
+                        showInstantly = false;
+                        card.setCityName(response.body().getCity());
+                    }
                     card.setBundle(response.body());
                     dataBase.putWeather(response.body());
                     final String description = card.getBundle().getWeatherType()[0].getDescription();
@@ -172,7 +215,8 @@ public class MainActivity extends AppCompatActivity {
                     card.setCurrentWeather(String.format(Locale.ENGLISH, "%s: %.2f°C", description, temperature));
                     card.setImageResource(imageResource);
                     adapter.notifyItemChanged(cards.indexOf(card));
-                    prepareCityWeather(card);
+                    if (showInstantly) prepareCityWeather(card);
+                    System.out.println(card.getBundle());
                 } catch (Exception e) {
                     Log.d(TAG, e.getMessage());
                     e.printStackTrace();
@@ -182,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<CityWeather> call, Throwable t) {
                 try {
+                    t.printStackTrace();
                     card.setCurrentWeather("old weather: date");
                     adapter.notifyItemChanged(cards.indexOf(card));
                 } catch (Exception e) {
@@ -206,9 +251,9 @@ public class MainActivity extends AppCompatActivity {
         ((TextView)viewGroup.findViewById(R.id.weather_fragment_text_temperature_max_value)).setText(String.format("%.2f°C", card.getBundle().getWeatherMain().getMaxTemp()-273));
         ((TextView)viewGroup.findViewById(R.id.weather_fragment_text_temperature_min_value)).setText(String.format("%.2f°C", card.getBundle().getWeatherMain().getMinTemp()-273));
         ((TextView)viewGroup.findViewById(R.id.weather_fragment_text_humidity_value)).setText(String.format("%d%%", card.getBundle().getWeatherMain().getHumidity()));
-        ((TextView)viewGroup.findViewById(R.id.weather_fragment_text_pressure_value)).setText(String.format("%dPa", card.getBundle().getWeatherMain().getPressure()/10));
+        ((TextView)viewGroup.findViewById(R.id.weather_fragment_text_pressure_value)).setText(String.format("%.2fPa", card.getBundle().getWeatherMain().getPressure()/10));
         ((TextView)viewGroup.findViewById(R.id.weather_fragment_text_wind_speed_value)).setText(String.format("%.2fm/s", card.getBundle().getWeatherWind().getSpeed()));
-        ((TextView)viewGroup.findViewById(R.id.weather_fragment_text_wind_direction_value)).setText(String.format("%s(%d°)", card.getBundle().getWeatherWind().getDirection(), card.getBundle().getWeatherWind().getDegree()));
+        ((TextView)viewGroup.findViewById(R.id.weather_fragment_text_wind_direction_value)).setText(String.format("%s(%.2f°)", card.getBundle().getWeatherWind().getDirection(), card.getBundle().getWeatherWind().getDegree()));
     }
 
     @Override

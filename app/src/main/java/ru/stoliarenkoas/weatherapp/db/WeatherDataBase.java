@@ -119,13 +119,13 @@ public class WeatherDataBase implements Closeable {
         main.setTemperature(cursor.getFloat(11));
         main.setMinTemp(cursor.getFloat(12));
         main.setMaxTemp(cursor.getFloat(13));
-        main.setPressure(cursor.getInt(14));
+        main.setPressure(cursor.getFloat(14));
         main.setHumidity(cursor.getShort(15));
         weather.setWeatherMain(main);
 
         WeatherWind wind = new WeatherWind();
         wind.setSpeed(cursor.getFloat(16));
-        wind.setDegree(cursor.getInt(17));
+        wind.setDegree(cursor.getFloat(17));
         weather.setWeatherWind(wind);
 
         WeatherClouds clouds = new WeatherClouds();

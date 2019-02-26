@@ -11,6 +11,6 @@ public class WeatherMain {
     @SerializedName("temp") private float temperature;
     @SerializedName("temp_min") private float minTemp;
     @SerializedName("temp_max") private float maxTemp;
-    private int pressure;
+    private float pressure;
     private short humidity;
 }
