@@ -26,6 +26,8 @@ import java.util.Locale;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import ru.stoliarenkoas.weatherapp.db.DataBaseHelper;
+import ru.stoliarenkoas.weatherapp.db.WeatherDataBase;
 import ru.stoliarenkoas.weatherapp.model.CityWeather;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private WeatherCardAdapter adapter;
     private OpenWeatherService openWeatherService;
     private Call<CityWeather> call;
+    private WeatherDataBase dataBase;
 
     private View citySelectionView;
     private View cityWeatherView;
@@ -48,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         openWeatherService = ((App)getApplication()).getOpenWeatherService();
+        dataBase = new WeatherDataBase(new DataBaseHelper(this));
 
         cards = ((App) getApplication()).cards;
     }
@@ -56,11 +60,26 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         prepareCitySelection();
+        dataBase.open();
+        cards.addAll(dataBase.getCards());
+        if (cards.isEmpty()) cards.add(new WeatherCard("Moscow"));
         if (findViewById(R.id.frame_layout_main) != null) {
             citySelectionView = findViewById(R.id.fragment_city_selection);
             cityWeatherView = findViewById(R.id.fragment_city_weather);
             cityWeatherView.setVisibility(View.INVISIBLE);
         } else requestWeather(cards.get(0));
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        dataBase.open();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        dataBase.close();
     }
 
     @Override
@@ -119,15 +138,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         initRecyclerViewAdapter();
         recyclerView.setAdapter(adapter);
-        addFewCards();
-    }
-
-    //stub
-    private void addFewCards() {
-        addCard("Kyiv");
-        addCard("Moscow");
-        addCard("Warsaw");
-        adapter.notifyDataSetChanged();
     }
 
     private void initRecyclerViewAdapter() {
@@ -135,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
         adapter.setOnItemClickListener(new WeatherCardAdapter.OnItemClickListener() {
             @Override
             public void onLongClick(View view, int position) {
+                dataBase.deleteWeather(cards.get(position).getBundle());
                 cards.remove(position);
                 adapter.notifyItemRemoved(position);
             }
@@ -154,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<CityWeather> call, Response<CityWeather> response) {
                 try {
                     card.setBundle(response.body());
+                    dataBase.putWeather(response.body());
                     final String description = card.getBundle().getWeatherType()[0].getDescription();
                     final float temperature = card.getBundle().getWeatherMain().getTemperature() - 273;
                     final String imageResource = String.format("https://openweathermap.org/img/w/%s.png", card.getBundle().getWeatherType()[0].getIcon());
@@ -196,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
         ((TextView)viewGroup.findViewById(R.id.weather_fragment_text_humidity_value)).setText(String.format("%d%%", card.getBundle().getWeatherMain().getHumidity()));
         ((TextView)viewGroup.findViewById(R.id.weather_fragment_text_pressure_value)).setText(String.format("%dPa", card.getBundle().getWeatherMain().getPressure()/10));
         ((TextView)viewGroup.findViewById(R.id.weather_fragment_text_wind_speed_value)).setText(String.format("%.2fm/s", card.getBundle().getWeatherWind().getSpeed()));
-        ((TextView)viewGroup.findViewById(R.id.weather_fragment_text_wind_direction_value)).setText(String.format("%d°", card.getBundle().getWeatherWind().getDegree()));
+        ((TextView)viewGroup.findViewById(R.id.weather_fragment_text_wind_direction_value)).setText(String.format("%s(%d°)", card.getBundle().getWeatherWind().getDirection(), card.getBundle().getWeatherWind().getDegree()));
     }
 
     @Override

@@ -9,5 +9,5 @@ import lombok.ToString;
 @Getter @Setter @ToString
 public class Coordinates {
     @SerializedName("lon") private float longitude;
-    @SerializedName("lat") private float latiitude;
+    @SerializedName("lat") private float latitude;
 }
